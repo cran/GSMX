@@ -11,7 +11,7 @@
 \examples{
 library(GSMX)
 data(pseudo.data)
-dim(pseudo.data)
+length(pseudo.data)
 }
 
 \keyword{datasets}

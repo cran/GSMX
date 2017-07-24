@@ -1,8 +1,7 @@
 exportPattern("^[[:alpha:]]+")
 importFrom("stats", optim, cov)
 importFrom("MASS", mvrnorm)
-importFrom("psych", tr)
-
+importFrom("stats", "var")
 
 
 

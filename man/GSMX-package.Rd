@@ -12,8 +12,8 @@ The package \pkg{GSMX} consists of the functions to estimate genetic variance-co
 \tabular{ll}{
 Package: \tab GSMX\cr
 Type: \tab GSMX\cr
-Version: \tab 0.1\cr
-Date: \tab 2016-9-25\cr
+Version: \tab 1.1\cr
+Date: \tab 2017-7-23\cr
 License: GPL>=2 \cr
 }
 }
@@ -30,7 +30,7 @@ This method provides an accurate estimation of trait heritability (equivalent to
 #library(GSMX)
 #data(pseudo.kin)
 #data(pseudo.data)
-#myfit=gsm(pseudo.data, pseudo.kin, nfold=5)
+#myfit=gsm(mydata, mykin, nfold=5)
 }
 
 \references{Control overfitting heritability in genomic selection through cross validation}
