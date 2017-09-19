@@ -1,97 +1,138 @@
 gsm=function(mydata, mykin, nfold){
   
-## negative loglikelihood
-nloglik.REML.1d<- function(t, y, kin) {
-  n=length(y)
-  x.design=rep(1, times=n)
-  beta=t[1]
-  phi.11=exp(t[2])
-  
-  sigma.11=exp(t[3])
-  
-  v.phi=kin*phi.11
-  v.sigma=diag(n)*sigma.11
-  v=v.phi+v.sigma
-  u=beta
-  nloglik = 0.5*((n-2)*log(2*pi)-log(det(t(x.design)%*%x.design)) +log(det(v))+log(det(t(x.design)%*%solve(v)%*%x.design))++t(y-u)%*%solve(v)%*%(y-u))
-  
-  return(nloglik)
-}
-
-
-## henderson equation
-henderson.FUN <- function(t, y, kin) {
-  n <- length(y)
-  x.design <- rep(1, times=n)
-  
-  phi.11 <- exp(t[2])
-  sigma.11 <- exp(t[3])
-  lambda <- phi.11/sigma.11
-  
-  mm <- matrix(NA, n+1, n+1)
-  mm[1, 1] <- t(x.design)%*%x.design
-  mm[2:(n+1), 1] <- x.design
-  mm[1, 2:(n+1)] <- t(x.design)
-  mm[2:(n+1), 2:(n+1)] <- diag(n) + solve(kin)/lambda
-  
-  est <- solve(mm)%*%c(t(x.design)%*%y, y)
-  v.est <- solve(mm)*sigma.11
-  
-  beta_hat <- est[1]
-  eta_hat <- est[-1]
-  
-  return(list(beta=beta_hat, eta=eta_hat, v=v.est))
-}
-
-cv.FUN=function(y0, kin0, nfold){
-  n=length(y0)
-  foldid <- sample(rep(1:nfold, n/nfold), replace=F)
-  y.test.pred.cv=NULL
-  y.test.cv=NULL
-  for (ifold in 1:nfold) {
-    print(ifold)
-    y.test = y0[foldid==ifold]
+  ### Negative nloglikelihood Function
+  nloglik.REML.1d <- function(t, y, kin){
     
-    K.train=kin0[foldid!=ifold,foldid!=ifold]
-    K.test=kin0[foldid==ifold,foldid==ifold]
-    K.test.train=kin0[foldid==ifold,foldid!=ifold]
+    n <- length(y)
+    x.design <- matrix(1, n, 1)
     
-    y.train=y0[foldid!=ifold]
-    t.init=c(mean(y.train), 1, 1)
-    junk=optim(t.init, y=y.train, kin=K.train, fn=nloglik.REML.1d, method="Nelder-Mead", hessian=FALSE, control=list(fnscale=1, maxit=2000))
-    ss.est=exp(junk$par[2])
-    ee.est=exp(junk$par[3])
-    v.train=ss.est*K.train+ee.est*diag(dim(K.train)[1])
+    phi <- t[1]
     
-    junk2=henderson.FUN(t=junk$par, y=y.train, kin=K.train)
-    beta.hat=junk2$beta
+    sigma <- t[2]
     
-    #### prediction
-    v.test.train=ss.est*K.test.train
-    y.test.pred=rep(1, length(y.test))*beta.hat+v.test.train%*%solve(v.train)%*%(y.train-rep(1, length(y.train))*beta.hat)
+    v.phi <- phi*kin
+    v.sigma <- sigma*diag(n)
+    v <- v.phi+v.sigma
     
-    y.test.cv=c(y.test.cv, y.test)
+    beta <- solve(t(x.design)%*%solve(v)%*%x.design)%*%(t(x.design)%*%solve(v)%*%y)
     
-    y.test.pred.cv=c(y.test.pred.cv, y.test.pred)
+    nloglik = 0.5*(unlist(determinant(v))[[1]] + unlist(determinant(t(x.design)%*%solve(v)%*%x.design))[[1]] + t(y-x.design%*%beta)%*%solve(v)%*%(y-x.design%*%beta))
+    
+    return(nloglik)
   }
   
-  xx=y.test.cv-rep(1, length(y.test.cv))*beta.hat
-  xx.hat=y.test.pred.cv-rep(1, length(y.test.cv))*beta.hat
   
-  predict=cov(xx, xx.hat)^2/var(xx)/var(xx.hat)
-  return(list(predict=predict))
-}
-
-junk=optim(c(mean(mydata),1, 1), y=mydata, kin=mykin, fn=nloglik.REML.1d, method="Nelder-Mead", hessian=FALSE, control=list(fnscale=1, maxit=2000))
-ss.est=exp(junk$par[2])
-ee.est=exp(junk$par[3])
-junk2=henderson.FUN(junk$par, mydata, mykin)
-beta.est=junk2$beta
-eta.est=junk2$eta
-v.est=junk2$v
-predic.est=cv.FUN(mydata, mykin, nfold)
-res=list(beta.est=beta.est, ss.est=ss.est, ee.est=ee.est, eta.est=eta.est, v.est=v.est, predic.est=predic.est)
-return(res)
+  ### Henderson Equation and Estimation
+  henderson.FUN <- function(t, y, kin){
+    n <- length(y)
+    x.design <- matrix(1, n, 1)
+    
+    
+    phi <- t[1]
+    
+    sigma <- t[2]
+    
+    lambda <- phi/sigma
+    
+    TL <- t(x.design)%*%x.design
+    BL <- x.design
+    TR <- t(x.design)
+    BR <- diag(n) + solve(kin)/lambda
+    
+    v.est <- solve(cbind(rbind(TL, BL), rbind(TR, BR)))
+    est <- v.est%*%matrix(c(t(x.design)%*%y, y), n+1, 1)
+    
+    beta_hat <- est[1, 1]
+    eta_hat <- est[-1, 1]
+    
+    return(list(beta=beta_hat, eta=eta_hat, v=v.est))
+  }
+  
+  
+  ### Cross Validation
+  cv.FUN <- function(y0, kin0, nfold){
+    n <- length(y0)
+    x.design <- matrix(1, n, 1)
+    
+    t.init <- c(var(y0)*2/3, var(y0)*1/3)
+    #t.init <- c(1, 0.1)
+    
+    foldid <- sample(rep(1:nfold, n/nfold), replace=F)
+    
+    y.test.cv <- NULL
+    y.test.pred.cv <- NULL
+    
+    for (ifold in 1:nfold){
+      print(ifold)
+      y.test <- y0[foldid==ifold]
+      n.test <- length(y.test)
+      
+      x.design.test <- matrix(1, n.test, 1)
+      
+      
+      K.train <- kin0[foldid!=ifold,foldid!=ifold]
+      K.test <- kin0[foldid==ifold,foldid==ifold]
+      K.test.train <- kin0[foldid==ifold,foldid!=ifold]
+      
+      y.train <- y0[foldid!=ifold]
+      n.train <- length(y.train)
+      
+      x.design.train <- matrix(1, n.train, 1)
+      
+      junk <- optim(par=t.init, y=y.train, kin=K.train, fn=nloglik.REML.1d, method="L-BFGS-B", lower=c(0, 0), upper=c(1000, 1000), hessian=TRUE)
+      
+      phi.est <- junk$par[1]
+      
+      sigma.est <- junk$par[2]
+      
+      v.phi.est <- phi.est*K.train
+      v.sigma.est <- sigma.est*diag(n.train)
+      v.train <- v.phi.est + v.sigma.est
+      
+      junk2 <- henderson.FUN(t=junk$par, y=y.train, kin=K.train)
+      beta.hat <- junk2$beta
+      
+      ### prediction ###
+      y.test.pred <- x.design.test%*%beta.hat + phi.est*K.test.train%*%solve(phi.est*K.train+ sigma.est*diag(n.train))%*%(y.train-x.design.train%*%beta.hat)
+      
+      y.test.cv <- c(y.test.cv, y.test)
+      
+      y.test.pred.cv <- c(y.test.pred.cv, y.test.pred)
+    }
+    
+    
+    xx <- y.test.cv - x.design%*%beta.hat
+    xx.hat <- y.test.pred.cv - x.design%*%beta.hat
+    
+    
+    #xx <- y.test.cv
+    #xx.hat <- y.test.pred.cv
+    
+    predict <- cov(xx, xx.hat)^2/(var(xx)*var(xx.hat))
+    
+    return(list(predict=predict))
+  }
+  
+  
+  n <- length(mydata)
+  
+  t.init <- c(var(mydata)*2/3, var(mydata)*1/3)
+  #t.init <- c(1, 0.1)
+  
+  junk <- optim(par=t.init, y=mydata, kin=mykin, fn=nloglik.REML.1d, method="L-BFGS-B", lower=c(0, 0), upper=c(1000, 1000), hessian=TRUE)
+  
+  var.para <- junk$par
+  
+  junk2 <- henderson.FUN(junk$par, mydata, mykin)
+  
+  beta.est <- junk2$beta
+  eta.est <- junk2$eta
+  v.est <- junk2$v
+  
+  predic.est <- cv.FUN(mydata, mykin, nfold)
+  res <- list(beta.est=beta.est, var.para=var.para, eta.est=eta.est, v.est=v.est, predic.est=predic.est)
+  return(res)
+  
 }
 
   

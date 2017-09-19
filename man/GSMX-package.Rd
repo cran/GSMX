@@ -12,8 +12,8 @@ The package \pkg{GSMX} consists of the functions to estimate genetic variance-co
 \tabular{ll}{
 Package: \tab GSMX\cr
 Type: \tab GSMX\cr
-Version: \tab 1.1\cr
-Date: \tab 2017-7-23\cr
+Version: \tab 1.2\cr
+Date: \tab 2017-9-19\cr
 License: GPL>=2 \cr
 }
 }
