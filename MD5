@@ -1,9 +1,9 @@
-9ab8e6bcfa7e595db3ee86ad5c3be099 *DESCRIPTION
+c3af3555e6e2115327454b576b2d01ee *DESCRIPTION
 3c256e79df3fe6a8d260977b3112b8b8 *NAMESPACE
 fec1a9c96bd792a770ffda7568446049 *R/gsm.R
-64ef6929ac3a0e21cfb1a30ab89d7076 *data/pseudo.data.rda
-3c3729dbe5ca3e603e687d74041a9477 *data/pseudo.kin.rda
-053fa39c217c15f19f07fa0549ed0775 *man/GSMX-package.Rd
-aa8759e540ed5805189d193aa29d7a16 *man/gsm.Rd
+1db25fb32d19a60489583eb80d45b9fb *data/pseudo.data.rda
+f93df1ddf85a3c66e516cf840d3f8d04 *data/pseudo.kin.rda
+df0f27585ba8f10d4ff53e63fc32eea8 *man/GSMX-package.Rd
+7742fad1dd18a1a737dbd707e6da84b0 *man/gsm.Rd
 f85af70c31671782a61a20a002293e11 *man/pseudo.data.Rd
 be106ba3172453f621f2a458f3839e98 *man/pseudo.kin.Rd

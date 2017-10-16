@@ -25,10 +25,10 @@ number of folds for cross validation}
 }
 
 \examples{
-#library(GSMX)
-#data(pseudo.kin)
-#data(pseudo.data)
-#myfit=gsm(pseudo.data, pseudo.kin, nfold=5)
+library(GSMX)
+data(pseudo.kin)
+data(pseudo.data)
+myfit=gsm(pseudo.data, pseudo.kin, nfold=5)
 }
 \keyword{Multivariate Genomic Selection}
 \keyword{Overfitting}

@@ -1,8 +1,8 @@
 Package: GSMX
 Type: Package
 Title: Multivariate Genomic Selection
-Version: 1.2
-Date: 2017-9-19
+Version: 1.3
+Date: 2017-10-16
 Author: Zhenyu Jia
 Maintainer: Zhenyu Jia <ajia.ucr@gmail.com>
 Imports: stats, MASS
@@ -11,6 +11,6 @@ Depends: R (>= 3.0.0)
 License: GPL (>= 2)
 LazyLoad: no
 NeedsCompilation: no
-Packaged: 2017-09-19 15:31:29 UTC; ch263
+Packaged: 2017-10-16 05:13:04 UTC; ch263
 Repository: CRAN
-Date/Publication: 2017-09-19 15:38:57 UTC
+Date/Publication: 2017-10-16 05:19:20 UTC
